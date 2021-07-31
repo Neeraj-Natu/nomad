@@ -239,6 +239,14 @@ config {
   configuration on the host (which is outside the scope of Nomad). Valid values
   pre-docker 1.9 are `default`, `bridge`, `host`, `none`, or `container:name`.
 
+  The default `network_mode` for tasks that use group networking in [`bridge`]
+  mode will be `container:<name>`, where the name is the container name of the
+  parent container used to share network namespaces between tasks. If you set
+  the group `network.mode = "bridge"` you should not set the Docker config
+  `network_mode`, or the container will be unable to reach other containers in
+  the task group. This will also prevent [Connect]-enabled tasks from reaching
+  the Envoy sidecar proxy.
+
 - `pid_mode` - (Optional) `host` or not set (default). Set to `host` to share
   the PID namespace with the host. Note that this also requires the Nomad agent
   to be configured to allow privileged containers.
@@ -457,7 +465,7 @@ config {
 
 ```hcl
 config {
-  cap_add = ["net_raw", sys_time"]
+  cap_add = ["net_raw", "sys_time"]
 }
 ```
 
@@ -1054,7 +1062,7 @@ Here is an example of using these properties in a job file:
 job "docs" {
   # Require docker version higher than 1.2.
   constraint {
-    attribute = "${driver.docker.version}"
+    attribute = "${attr.driver.docker.version}"
     operator  = ">"
     version   = "1.2"
   }
@@ -1143,3 +1151,5 @@ Windows is relatively new and rapidly evolving you may want to consult the
 [no_net_raw]: /docs/upgrade/upgrade-specific#nomad-1-1-0-rc1-1-0-5-0-12-12
 [docker_caps]: https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities
 [allow_caps]: /docs/drivers/docker#allow_caps
+[Connect]: /docs/job-specification/connect
+[`bridge`]: docs/job-specification/network#bridge

@@ -249,12 +249,11 @@ func (v *CSIVolume) controllerValidateVolume(req *structs.CSIVolumeRegisterReque
 
 	method := "ClientCSI.ControllerValidateVolume"
 	cReq := &cstructs.ClientCSIControllerValidateVolumeRequest{
-		VolumeID:       vol.RemoteID(),
-		AttachmentMode: vol.AttachmentMode,
-		AccessMode:     vol.AccessMode,
-		Secrets:        vol.Secrets,
-		Parameters:     vol.Parameters,
-		Context:        vol.Context,
+		VolumeID:           vol.RemoteID(),
+		VolumeCapabilities: vol.RequestedCapabilities,
+		Secrets:            vol.Secrets,
+		Parameters:         vol.Parameters,
+		Context:            vol.Context,
 	}
 	cReq.PluginID = plugin.ID
 	cResp := &cstructs.ClientCSIControllerValidateVolumeResponse{}
@@ -1125,7 +1124,7 @@ func (v *CSIVolume) CreateSnapshot(args *structs.CSISnapshotCreateRequest, reply
 		cReq := &cstructs.ClientCSIControllerCreateSnapshotRequest{
 			ExternalSourceVolumeID: vol.ExternalID,
 			Name:                   snap.Name,
-			Secrets:                snap.Secrets,
+			Secrets:                vol.Secrets,
 			Parameters:             snap.Parameters,
 		}
 		cReq.PluginID = plugin.ID
